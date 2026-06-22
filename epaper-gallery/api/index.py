@@ -10,13 +10,8 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def generate_dithered_art(image_url):
-    # 伪装面具，突破维基百科等图库的反爬限制
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36'
-    }
-    
     try:
-        response = requests.get(image_url, headers=headers, timeout=10)
+        response = requests.get(image_url, timeout=20)
         response.raise_for_status() 
         img = Image.open(BytesIO(response.content)).convert("RGB")
     except Exception as e:
@@ -53,7 +48,7 @@ def generate_dithered_art(image_url):
 # 路由 1：电脑浏览器高清预览 (莫奈《日出》原图测试)
 @app.route('/preview_gallery')
 def preview_gallery():
-    art_url = "https://upload.wikimedia.org/wikipedia/commons/5/59/Monet_-_Impression%2C_Sunrise.jpg"
+    art_url = "https://collectionapi.metmuseum.org/api/collection/v1/iiif/336046/1364579/main-image"
     dithered_img = generate_dithered_art(art_url)
     
     preview_img = dithered_img.convert("RGB")
@@ -66,7 +61,7 @@ def preview_gallery():
 # 路由 2：给 ESP32 的底层二进制流
 @app.route('/get_gallery_epd')
 def get_gallery_epd():
-    art_url = "https://upload.wikimedia.org/wikipedia/commons/5/59/Monet_-_Impression%2C_Sunrise.jpg"
+    art_url = "https://collectionapi.metmuseum.org/api/collection/v1/iiif/336046/1364579/main-image"
     dithered_img = generate_dithered_art(art_url)
 
     black_buf = bytearray(38880)
